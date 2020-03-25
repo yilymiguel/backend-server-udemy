@@ -16,7 +16,7 @@ app.get('/', (req, res, next) => {
     desde = Number(desde);
 
     //obtener todos los usuarios
-    Usuario.find({}, 'nombre email img role')
+    Usuario.find({}, 'nombre email img role google')
         .skip(desde)
         .limit(5)
         .exec(
@@ -33,7 +33,7 @@ app.get('/', (req, res, next) => {
 
                     res.status(200).json({
                         ok: true,
-                        usuraios: usuarios,
+                        usuarios: usuarios,
                         total: cant
                     });
                 });
@@ -41,7 +41,60 @@ app.get('/', (req, res, next) => {
             });
 });
 
+// ==========================================
+// Actualizar usuario
+// ==========================================
+app.put('/:id', mdAuth.verificaToken, (req, res) => {
 
+    var id = req.params.id;
+    var body = req.body;
+
+    Usuario.findById(id, (err, usuario) => {
+
+
+        if (err) {
+            return res.status(500).json({
+                ok: false,
+                mensaje: 'Error al buscar usuario',
+                errors: err
+            });
+        }
+
+        if (!usuario) {
+            return res.status(400).json({
+                ok: false,
+                mensaje: 'El usuario con el id ' + id + ' no existe',
+                errors: {message: 'No existe un usuario con ese ID'}
+            });
+        }
+
+
+        usuario.nombre = body.nombre;
+        usuario.email = body.email;
+        usuario.role = body.role;
+
+        usuario.save((err, usuarioModificado) => {
+
+            if (err) {
+                return res.status(400).json({
+                    ok: false,
+                    mensaje: 'Error al actualizar usuario',
+                    errors: err
+                });
+            }
+
+            usuarioModificado.password = ':)';
+
+            res.status(200).json({
+                ok: true,
+                usuario: usuarioModificado
+            });
+
+        });
+
+    });
+
+});
 
 
 //================================================
@@ -51,7 +104,7 @@ app.post('/', (req, res) => {
 
     var body = req.body;
 
-    var usuraio = new Usuario({
+    var usuario = new Usuario({
         nombre: body.nombre,
         email: body.email,
         password: bcrypt.hashSync(body.password, 10),
@@ -59,7 +112,7 @@ app.post('/', (req, res) => {
         role: body.role
     });
 
-    usuraio.save((err, usuarioGuardado) => {
+    usuario.save((err, usuarioGuardado) => {
 
         if (err) {
             return res.status(400).json({
@@ -80,61 +133,6 @@ app.post('/', (req, res) => {
 
 
 });
-
-
-//================================================
-// Modificar usuario
-//================================================
-app.put('/:id',
-    //mdAuth.verificaToken,
-    (req, res) => {
-    var id = req.params.id;
-    var body = req.body;
-
-    Usuario.findById(id, (err, usuario) => {
-
-        if (err) { 
-            return res.status(500).json({
-                ok: false,
-                mensaje: 'Error al buscar usuario',
-                errors: err
-            });
-        }
-
-        if (!usuario) {
-            return res.status(400).json({
-                ok: false,
-                mensaje: 'El usuario con el id: ' + id + ' no existe.',
-                errors: {
-                    message: 'No existe un usuario con ese ID'  
-                }
-            });
-        }
-
-        usuario.nombre = body.nombre;
-        usuario.email = body.email;
-        usuario.role = body.role;
-
-        usuario.save((err, usuarioActualizado) => {
-            if (err) {
-                return res.status(400).json({
-                    ok: false,
-                    mensaje: 'Error al actualizar usuario',
-                    errors: err
-                });
-            }
-
-            usuarioGuardado.password = ':)';
-
-            res.status(200).json({
-                ok: true,
-                mensaje: 'Usuario actualizado correctamente',
-                usuario: usuarioActualizado
-            });
-        })
-    })
-});
-
 
 //================================================
 // Eliminar usuario

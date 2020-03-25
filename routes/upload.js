@@ -1,5 +1,7 @@
 var express = require('express');
 var fileUpload = require('express-fileupload');
+
+var http = require('http');
 var fs = require('fs');
 
 var app = express();
@@ -112,10 +114,10 @@ function subirPorTipo(tipo, id, fileName, res) {
 
             var pathViejo = './uploads/usuarios/' + usuario.img;
 
-            //si existe elimina la img anterior 
-            if (fs.existsSync(pathViejo)) {
-                fs.unlink(pathViejo);
-            }
+            // si existe elimina la img anterior
+            // if (fs.existsSync(pathViejo)) {
+            //     fs.unlink(pathViejo);
+            // }
 
 
             usuario.img = fileName;
@@ -135,7 +137,7 @@ function subirPorTipo(tipo, id, fileName, res) {
                 return res.status(200).json({
                     ok: true,
                     mensaje: 'Archivo subido correctamente.',
-                    usuario: usuarioAct
+                    usuarioAct: usuarioAct
                 });
             })
 
@@ -240,7 +242,7 @@ function subirPorTipo(tipo, id, fileName, res) {
                 return res.status(200).json({
                     ok: true,
                     mensaje: 'Archivo subido correctamente.',
-                    medico: hospitalAct
+                    hospital: hospitalAct
                 });
 
             });
@@ -248,4 +250,5 @@ function subirPorTipo(tipo, id, fileName, res) {
 
     }
 }
+
 module.exports = app;
